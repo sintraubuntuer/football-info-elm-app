@@ -1,9 +1,9 @@
 module Types exposing
-    ( Competition
-    , CompetitionId
-    , CurrentOrder(..)
+    ( CurrentOrder(..)
     , CurrentTab(..)
     , Game
+    , League
+    , LeagueId
     , Model
     , Msg(..)
     , OrderCriteria(..)
@@ -76,7 +76,7 @@ type PresentStatus
     | FetchingData
 
 
-type alias Competition =
+type alias League =
     { id : Int
     , name : String
     }
@@ -93,7 +93,7 @@ type WeekMode
     | AllWeeks
 
 
-type alias CompetitionId =
+type alias LeagueId =
     Int
 
 
@@ -110,7 +110,7 @@ type alias Game =
     , weekNr : Int
     , gameNrWeek : Maybe Int
     , seasonId : Int
-    , competitionId : Int
+    , leagueId : Int
     }
 
 
@@ -118,8 +118,8 @@ type alias RankTableEntry =
     { team : Int
     , teamName : String
     , teamShortName : String
-    , competition : Int
-    , competitionName : String
+    , league : Int
+    , leagueName : String
     , season : Int
     , seasonName : String
     , weekNr : Int
@@ -154,7 +154,7 @@ type Msg
     = Noop
     | ChangeTab CurrentTab
     | ChangeSeason String
-    | ChangeCompetition String
+    | ChangeLeague String
     | ChangeWeekMode
     | ChangeWeekNr String
     | ChangeOptionGoals
@@ -174,14 +174,14 @@ type Msg
 type alias Model =
     { presentStatus : PresentStatus
     , currentTab : CurrentTab
-    , competitions : List Competition
-    , selectedCompetition : Int
+    , leagues : List League
+    , selectedLeague : Int
     , seasonRange : List Season
-    , cacheSeasonRanges : Dict.Dict CompetitionId (List Season)
+    , cacheSeasonRanges : Dict.Dict LeagueId (List Season)
     , selectedSeasonId : Maybe Int
     , weekmode : WeekMode
     , weekNr : Int
-    , cacheWeekRange : Dict.Dict ( CompetitionId, SeasonId, TabId ) Int
+    , cacheWeekRange : Dict.Dict ( LeagueId, SeasonId, TabId ) Int
     , games : List Game
     , showGameResults : Bool
     , rankTable : List RankTableEntry

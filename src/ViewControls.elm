@@ -1,5 +1,5 @@
 module ViewControls exposing
-    ( competitionView
+    ( leagueView
     , modeView
     , optionGoalsView
     , outputFetchingDataView
@@ -25,11 +25,11 @@ import LanguageFuncs
         )
 import Types
     exposing
-        ( Competition
-        , CompetitionId
-        , CurrentOrder(..)
+        ( CurrentOrder(..)
         , CurrentTab(..)
         , Game
+        , League
+        , LeagueId
         , Model
         , Msg(..)
         , OrderCriteria(..)
@@ -46,13 +46,13 @@ import Types
         )
 
 
-competitionView : Model -> Html Msg
-competitionView model =
+leagueView : Model -> Html Msg
+leagueView model =
     div [ class "form-group row" ]
-        [ label [ for "competitionSelector", class "col-form-label col-sm-3" ] [ gtxt_ "league" model.language ]
+        [ label [ for "leagueSelector", class "col-form-label col-sm-3" ] [ gtxt_ "league" model.language ]
         , div [ class "col-sm-9" ]
-            [ select [ class "form-control", onInput ChangeCompetition ]
-                (List.map (\item -> option [ selected (item.id == model.selectedCompetition), value (String.fromInt item.id) ] [ text item.name ]) model.competitions)
+            [ select [ class "form-control", onInput ChangeLeague ]
+                (List.map (\item -> option [ selected (item.id == model.selectedLeague), value (String.fromInt item.id) ] [ text item.name ]) model.leagues)
             ]
         ]
 
@@ -130,7 +130,7 @@ weekView model =
         maxWeek =
             case model.selectedSeasonId of
                 Just sid ->
-                    Dict.get ( model.selectedCompetition, sid, calendarTab ) model.cacheWeekRange
+                    Dict.get ( model.selectedLeague, sid, calendarTab ) model.cacheWeekRange
                         |> Maybe.withDefault 34
 
                 Nothing ->

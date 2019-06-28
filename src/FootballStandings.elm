@@ -29,11 +29,11 @@ import String
 import Time
 import Types
     exposing
-        ( Competition
-        , CompetitionId
-        , CurrentOrder(..)
+        ( CurrentOrder(..)
         , CurrentTab(..)
         , Game
+        , League
+        , LeagueId
         , Model
         , Msg(..)
         , OrderCriteria(..)
@@ -144,14 +144,14 @@ negateOrdertype ordtype =
 
 
 
--- checks if available sesons for a given competition are already in  'cache'
+-- checks if available sesons for a given league are already in  'cache'
 
 
 haveAllEntriesForWeek : Model -> Bool
 haveAllEntriesForWeek model =
     let
         lentries =
-            filterEntrybyWeekMbSeasonCompetition model.rankTable model.weekNr model.selectedSeasonId model.selectedCompetition
+            filterEntrybyWeekMbSeasonLeague model.rankTable model.weekNr model.selectedSeasonId model.selectedLeague
 
         boolout =
             List.length lentries > 0
@@ -168,7 +168,7 @@ appendToListofRankEntries initialRankEntries lranks =
         head :: rest ->
             let
                 newinitial =
-                    List.filter (\entry -> entry.weekNr /= head.weekNr || entry.season /= head.season || entry.competition /= head.competition || entry.team /= head.team) initialRankEntries
+                    List.filter (\entry -> entry.weekNr /= head.weekNr || entry.season /= head.season || entry.league /= head.league || entry.team /= head.team) initialRankEntries
 
                 newini2 =
                     [ head ] ++ newinitial
@@ -233,40 +233,40 @@ urlForStandingsTable apiUrl =
 
 
 urlForFilteredStandingsTable : String -> Int -> Int -> Int -> String
-urlForFilteredStandingsTable apiUrl compId seasonId weekId =
-    urlForStandingsTable apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&competition=" ++ String.fromInt compId ++ "&weekNr=" ++ String.fromInt weekId ++ "&ordering=weekRank&format=json"
+urlForFilteredStandingsTable apiUrl leagueId seasonId weekId =
+    urlForStandingsTable apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&competition=" ++ String.fromInt leagueId ++ "&weekNr=" ++ String.fromInt weekId ++ "&ordering=weekRank&format=json"
 
 
 urlForSeasonRangeInRankTable : String -> Int -> String
-urlForSeasonRangeInRankTable apiUrl competitionId =
-    baseUrlForStandingsTable apiUrl ++ "getSeasonsForComp/?competition=" ++ String.fromInt competitionId ++ "&format=json"
+urlForSeasonRangeInRankTable apiUrl leagueId =
+    baseUrlForStandingsTable apiUrl ++ "getSeasonsForComp/?competition=" ++ String.fromInt leagueId ++ "&format=json"
 
 
 urlForWeekRangeInRankTable : String -> Int -> Int -> String
-urlForWeekRangeInRankTable apiUrl competitionId seasonId =
-    baseUrlForStandingsTable apiUrl ++ "getWeekRangeForTblStandings/?competition=" ++ String.fromInt competitionId ++ "&season=" ++ String.fromInt seasonId ++ "&format=json"
+urlForWeekRangeInRankTable apiUrl leagueId seasonId =
+    baseUrlForStandingsTable apiUrl ++ "getWeekRangeForTblStandings/?competition=" ++ String.fromInt leagueId ++ "&season=" ++ String.fromInt seasonId ++ "&format=json"
 
 
 
 -- VIEW
 
 
-filterEntrybyWeekMbSeasonCompetition : List RankTableEntry -> Int -> Maybe Int -> Int -> List RankTableEntry
-filterEntrybyWeekMbSeasonCompetition lentries weeknr mbseasonid competitionid =
+filterEntrybyWeekMbSeasonLeague : List RankTableEntry -> Int -> Maybe Int -> Int -> List RankTableEntry
+filterEntrybyWeekMbSeasonLeague lentries weeknr mbseasonid leagueid =
     case mbseasonid of
         Nothing ->
             []
 
         Just seasonid ->
             lentries
-                |> List.filter (\entry -> entry.weekNr == weeknr && entry.season == seasonid && entry.competition == competitionid)
+                |> List.filter (\entry -> entry.weekNr == weeknr && entry.season == seasonid && entry.league == leagueid)
 
 
 outputRankTableViewStyled : Model -> String -> Html Msg
 outputRankTableViewStyled model strClass =
     let
         lranktable =
-            filterEntrybyWeekMbSeasonCompetition model.rankTable model.weekNr model.selectedSeasonId model.selectedCompetition
+            filterEntrybyWeekMbSeasonLeague model.rankTable model.weekNr model.selectedSeasonId model.selectedLeague
                 |> orderLRecbyField_ model.currentorder
 
         ( compName, seasonName ) =
@@ -304,7 +304,7 @@ getCompAndSeasonNameFromListHead lranktable =
             Nothing
 
         Just entry ->
-            Just ( entry.competitionName, entry.seasonName )
+            Just ( entry.leagueName, entry.seasonName )
 
 
 getOrderArrows : OrderCriteria -> CurrentOrder -> Html Msg
@@ -440,13 +440,13 @@ rankTableEntryToTableRow tablesize rtentry =
         ltableRow
 
 
-competitionView : Model -> Html Msg
-competitionView model =
+leagueView : Model -> Html Msg
+leagueView model =
     div [ class "form-group row" ]
-        [ label [ for "competitionSelector", class "col-form-label col-sm-3" ] [ gtxt_ "compet." model.language ]
+        [ label [ for "leagueSelector", class "col-form-label col-sm-3" ] [ gtxt_ "compet." model.language ]
         , div [ class "col-sm-9" ]
-            [ select [ class "form-control", onInput ChangeCompetition ]
-                (List.map (\item -> option [ selected (item.id == model.selectedCompetition), value (String.fromInt item.id) ] [ text item.name ]) model.competitions)
+            [ select [ class "form-control", onInput ChangeLeague ]
+                (List.map (\item -> option [ selected (item.id == model.selectedLeague), value (String.fromInt item.id) ] [ text item.name ]) model.leagues)
             ]
         ]
 

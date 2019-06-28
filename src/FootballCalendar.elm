@@ -31,11 +31,11 @@ import String
 import Time
 import Types
     exposing
-        ( Competition
-        , CompetitionId
-        , CurrentOrder(..)
+        ( CurrentOrder(..)
         , CurrentTab(..)
         , Game
+        , League
+        , LeagueId
         , Model
         , Msg(..)
         , OrderCriteria(..)
@@ -50,8 +50,8 @@ import Types
         )
 
 
-getDefaultCompetitionId : Int
-getDefaultCompetitionId =
+getDefaultLeagueId : Int
+getDefaultLeagueId =
     2
 
 
@@ -66,7 +66,7 @@ haveAllGamesInSeason model =
             Maybe.withDefault -999 model.selectedSeasonId
 
         lgames =
-            filterGamesbyMbSeasonCompetition model.games model.selectedSeasonId model.selectedCompetition
+            filterGamesbyMbSeasonLeague model.games model.selectedSeasonId model.selectedLeague
 
         nrWeekGames =
             case lgames of
@@ -104,7 +104,7 @@ appendToListofGames initialGames lgames =
         head :: rest ->
             let
                 newinitial =
-                    List.filter (\game -> (game.weekNr /= head.weekNr) || (game.seasonId /= head.seasonId) || (game.competitionId /= head.competitionId) || (game.homeTeam /= head.homeTeam)) initialGames
+                    List.filter (\game -> (game.weekNr /= head.weekNr) || (game.seasonId /= head.seasonId) || (game.leagueId /= head.leagueId) || (game.homeTeam /= head.homeTeam)) initialGames
 
                 newini2 =
                     [ head ] ++ newinitial
@@ -130,26 +130,26 @@ weekNrGameNrWeekComparison g1 g2 =
                     compare g1.matchDate g2.matchDate
 
 
-filterGamesbyWeekMbSeasonCompetition : List Game -> Int -> Maybe Int -> Int -> List Game
-filterGamesbyWeekMbSeasonCompetition lgames weeknr mbseasonid competitionid =
+filterGamesbyWeekMbSeasonLeague : List Game -> Int -> Maybe Int -> Int -> List Game
+filterGamesbyWeekMbSeasonLeague lgames weeknr mbseasonid leagueid =
     case mbseasonid of
         Nothing ->
             []
 
         Just seasonid ->
             lgames
-                |> List.filter (\game -> game.weekNr == weeknr && game.seasonId == seasonid && game.competitionId == competitionid)
+                |> List.filter (\game -> game.weekNr == weeknr && game.seasonId == seasonid && game.leagueId == leagueid)
 
 
-filterGamesbyMbSeasonCompetition : List Game -> Maybe Int -> Int -> List Game
-filterGamesbyMbSeasonCompetition lgames mbseasonid competitionid =
+filterGamesbyMbSeasonLeague : List Game -> Maybe Int -> Int -> List Game
+filterGamesbyMbSeasonLeague lgames mbseasonid leagueid =
     case mbseasonid of
         Nothing ->
             []
 
         Just seasonid ->
             lgames
-                |> List.filter (\game -> game.seasonId == seasonid && game.competitionId == competitionid)
+                |> List.filter (\game -> game.seasonId == seasonid && game.leagueId == leagueid)
 
 
 
@@ -185,13 +185,13 @@ urlForMatches apiUrl =
 
 
 urlForFilteredMatches : String -> Int -> Int -> Maybe Int -> String
-urlForFilteredMatches apiUrl compId seasonId mbweekId =
+urlForFilteredMatches apiUrl leagueId seasonId mbweekId =
     case mbweekId of
         Nothing ->
-            urlForMatches apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&competition=" ++ String.fromInt compId ++ "&ordering=weekNr" ++ "&format=json"
+            urlForMatches apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&competition=" ++ String.fromInt leagueId ++ "&ordering=weekNr" ++ "&format=json"
 
         Just nr ->
-            urlForMatches apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&competition=" ++ String.fromInt compId ++ "&weekNr=" ++ String.fromInt nr ++ "&ordering=gameNrWeek" ++ "&format=json"
+            urlForMatches apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&competition=" ++ String.fromInt leagueId ++ "&weekNr=" ++ String.fromInt nr ++ "&ordering=gameNrWeek" ++ "&format=json"
 
 
 baseUrlForMatchTable : String -> String
@@ -200,13 +200,13 @@ baseUrlForMatchTable apiUrl =
 
 
 urlForSeasonRangeInMatchTable : String -> Int -> String
-urlForSeasonRangeInMatchTable apiUrl competitionId =
-    baseUrlForMatchTable apiUrl ++ "getSeasonsForComp/?competition=" ++ String.fromInt competitionId ++ "&format=json"
+urlForSeasonRangeInMatchTable apiUrl leagueId =
+    baseUrlForMatchTable apiUrl ++ "getSeasonsForComp/?competition=" ++ String.fromInt leagueId ++ "&format=json"
 
 
 urlForWeekRangeInMatchTable : String -> Int -> Int -> String
-urlForWeekRangeInMatchTable apiUrl competitionId seasonId =
-    baseUrlForMatchTable apiUrl ++ "getWeekRange/" ++ "?competition=" ++ String.fromInt competitionId ++ "&season=" ++ String.fromInt seasonId ++ "&format=json"
+urlForWeekRangeInMatchTable apiUrl leagueId seasonId =
+    baseUrlForMatchTable apiUrl ++ "getWeekRange/" ++ "?competition=" ++ String.fromInt leagueId ++ "&season=" ++ String.fromInt seasonId ++ "&format=json"
 
 
 
@@ -267,7 +267,7 @@ theFilteredGames model =
 
         theGames =
             model.games
-                |> List.filter (\game -> game.weekNr == model.weekNr && game.seasonId == selectedSeason && game.competitionId == model.selectedCompetition)
+                |> List.filter (\game -> game.weekNr == model.weekNr && game.seasonId == selectedSeason && game.leagueId == model.selectedLeague)
     in
     theGames
 
@@ -280,7 +280,7 @@ outputAllWeeksView model =
 
         theFilteredGames_ =
             model.games
-                |> List.filter (\game -> game.seasonId == selectedSeason && game.competitionId == model.selectedCompetition)
+                |> List.filter (\game -> game.seasonId == selectedSeason && game.leagueId == model.selectedLeague)
                 |> List.sortWith weekNrGameNrWeekComparison
 
         loflistofWeeks =

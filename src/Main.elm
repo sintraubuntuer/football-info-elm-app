@@ -19,11 +19,11 @@ import LanguageFuncs
 import Time
 import Types
     exposing
-        ( Competition
-        , CompetitionId
-        , CurrentOrder(..)
+        ( CurrentOrder(..)
         , CurrentTab(..)
         , Game
+        , League
+        , LeagueId
         , Model
         , Msg(..)
         , OrderCriteria(..)
@@ -46,8 +46,8 @@ initialcurrentorder =
     CurrentOrder OrdRank Asc
 
 
-getDefaultCompetitionId : Int
-getDefaultCompetitionId =
+getDefaultLeagueId : Int
+getDefaultLeagueId =
     2
 
 
@@ -89,8 +89,8 @@ getInitialModel mbUrl mbLanguage =
     in
     { presentStatus = NoData
     , currentTab = CalendarTab
-    , competitions = [ Competition 1 "Primeira Liga", Competition 2 "Liga Sagres" ]
-    , selectedCompetition = getDefaultCompetitionId
+    , leagues = [ League 1 "Primeira Liga", League 2 "Liga Sagres" ]
+    , selectedLeague = getDefaultLeagueId
     , seasonRange = []
     , cacheSeasonRanges = Dict.empty
     , selectedSeasonId = Nothing
@@ -125,25 +125,25 @@ update msg model =
         NewDisplayLanguage displaylanguage ->
             ( { model | language = displaylanguage }, Cmd.none )
 
-        ChangeCompetition val ->
+        ChangeLeague val ->
             let
-                newCompetition =
+                newLeague =
                     val
                         |> String.toInt
                         |> Result.fromMaybe "couldn't convert to Int"
-                        |> Result.withDefault getDefaultCompetitionId
+                        |> Result.withDefault getDefaultLeagueId
 
                 newModel1 =
-                    { model | selectedCompetition = newCompetition }
+                    { model | selectedLeague = newLeague }
 
                 thelSeasons =
-                    Dict.get newCompetition model.cacheSeasonRanges
+                    Dict.get newLeague model.cacheSeasonRanges
 
                 ( newModel2, cmds ) =
                     case thelSeasons of
                         -- only gets season range from server if not present in model cache
                         Nothing ->
-                            ( newModel1, getSeasonRange newModel1.apiUrl newCompetition newModel1.currentTab )
+                            ( newModel1, getSeasonRange newModel1.apiUrl newLeague newModel1.currentTab )
 
                         Just lseasons ->
                             update (NewSeasonRange (Ok lseasons)) newModel1
@@ -163,12 +163,12 @@ update msg model =
                                     { model | selectedSeasonId = Just nr }
 
                                 maxWeekFromDict =
-                                    Dict.get ( model.selectedCompetition, nr, standingsTab ) nModel.cacheWeekRange
+                                    Dict.get ( model.selectedLeague, nr, standingsTab ) nModel.cacheWeekRange
 
                                 ( nModel2, ncmds ) =
                                     case maxWeekFromDict of
                                         Nothing ->
-                                            ( nModel, getWeekRange nModel.apiUrl nModel.selectedCompetition nr nModel.currentTab )
+                                            ( nModel, getWeekRange nModel.apiUrl nModel.selectedLeague nr nModel.currentTab )
 
                                         Just weekval ->
                                             update (NewWeekRange (Ok (List.range 1 weekval))) nModel
@@ -231,7 +231,7 @@ update msg model =
                             getSeasonIdFromSeasonRangeHead lseason
 
                 newCacheSRange =
-                    checkAndGetNewSeasonRangeCache model.selectedCompetition lseason model.cacheSeasonRanges
+                    checkAndGetNewSeasonRangeCache model.selectedLeague lseason model.cacheSeasonRanges
 
                 newModel1 =
                     { model
@@ -248,13 +248,13 @@ update msg model =
                         Just sId ->
                             let
                                 maxWeekFromDict =
-                                    Dict.get ( newModel1.selectedCompetition, sId, standingsTab ) newModel1.cacheWeekRange
+                                    Dict.get ( newModel1.selectedLeague, sId, standingsTab ) newModel1.cacheWeekRange
 
                                 --_ = Debug.log "debug cacheWeekRange : " ( toString newModel1.cacheWeekRange )
                                 ( nModel, ncmds ) =
                                     case maxWeekFromDict of
                                         Nothing ->
-                                            ( newModel1, getWeekRange newModel1.apiUrl newModel1.selectedCompetition sId newModel1.currentTab )
+                                            ( newModel1, getWeekRange newModel1.apiUrl newModel1.selectedLeague sId newModel1.currentTab )
 
                                         Just weekval ->
                                             update (NewWeekRange (Ok (List.range 1 weekval))) newModel1
@@ -297,10 +297,10 @@ update msg model =
                 newCacheWeekRange =
                     case model.currentTab of
                         CalendarTab ->
-                            checkAndGetNewWeekRangeCache model.selectedCompetition model.selectedSeasonId maxweek calendarTab model.cacheWeekRange
+                            checkAndGetNewWeekRangeCache model.selectedLeague model.selectedSeasonId maxweek calendarTab model.cacheWeekRange
 
                         StandingsTab ->
-                            checkAndGetNewWeekRangeCache model.selectedCompetition model.selectedSeasonId maxweek standingsTab model.cacheWeekRange
+                            checkAndGetNewWeekRangeCache model.selectedLeague model.selectedSeasonId maxweek standingsTab model.cacheWeekRange
 
                 newModel =
                     { model
@@ -398,7 +398,7 @@ update msg model =
 
                                 selGames =
                                     model.games
-                                        |> List.filter (\game -> game.weekNr == model.weekNr && game.seasonId == selSeason && game.competitionId == model.selectedCompetition)
+                                        |> List.filter (\game -> game.weekNr == model.weekNr && game.seasonId == selSeason && game.leagueId == model.selectedLeague)
 
                                 ( newModel, cmds ) =
                                     if List.length selGames == 0 then
@@ -433,10 +433,10 @@ update msg model =
                 newCmd sId =
                     case model.currentTab of
                         CalendarTab ->
-                            getGames model.apiUrl model.selectedCompetition sId mbweek
+                            getGames model.apiUrl model.selectedLeague sId mbweek
 
                         StandingsTab ->
-                            getRankTable model.apiUrl model.selectedCompetition sId model.weekNr
+                            getRankTable model.apiUrl model.selectedLeague sId model.weekNr
             in
             case model.selectedSeasonId of
                 Just seasonId ->
@@ -481,7 +481,7 @@ errorToString error =
 
 
 getSeasonRange : String -> Int -> CurrentTab -> Cmd Msg
-getSeasonRange apiUrl competitionId currentTab =
+getSeasonRange apiUrl leagueId currentTab =
     let
         ( theUrlFunc, theMsg ) =
             case currentTab of
@@ -495,7 +495,7 @@ getSeasonRange apiUrl competitionId currentTab =
         { method = "GET"
         , headers =
             []
-        , url = theUrlFunc apiUrl competitionId
+        , url = theUrlFunc apiUrl leagueId
         , body = Http.emptyBody
         , expect = Http.expectJson theMsg (Json.Decode.list seasonsRangeDecoder)
         , timeout = Nothing
@@ -504,7 +504,7 @@ getSeasonRange apiUrl competitionId currentTab =
 
 
 getWeekRange : String -> Int -> Int -> CurrentTab -> Cmd Msg
-getWeekRange apiUrl competitionId seasonId currentTab =
+getWeekRange apiUrl leagueId seasonId currentTab =
     let
         ( theUrlFunc, theMsg ) =
             case currentTab of
@@ -517,7 +517,7 @@ getWeekRange apiUrl competitionId seasonId currentTab =
     Http.request
         { method = "GET"
         , headers = []
-        , url = theUrlFunc apiUrl competitionId seasonId
+        , url = theUrlFunc apiUrl leagueId seasonId
         , body = Http.emptyBody
         , expect = Http.expectJson theMsg (Json.Decode.list weekRangeDecoder)
         , timeout = Nothing
@@ -592,15 +592,15 @@ weekRangeDecoder =
 
 
 checkAndGetNewSeasonRangeCache : Int -> List Season -> Dict Int (List Season) -> Dict Int (List Season)
-checkAndGetNewSeasonRangeCache competitionId lseasons dCacheSeasons =
+checkAndGetNewSeasonRangeCache leagueId lseasons dCacheSeasons =
     let
         lseason =
-            Dict.get competitionId dCacheSeasons
+            Dict.get leagueId dCacheSeasons
 
         newCacheSeasonRange =
             case lseason of
                 Nothing ->
-                    Dict.insert competitionId lseasons dCacheSeasons
+                    Dict.insert leagueId lseasons dCacheSeasons
 
                 _ ->
                     dCacheSeasons
@@ -609,19 +609,19 @@ checkAndGetNewSeasonRangeCache competitionId lseasons dCacheSeasons =
 
 
 checkAndGetNewWeekRangeCache : Int -> Maybe Int -> Maybe Int -> TabId -> Dict ( Int, Int, TabId ) Int -> Dict ( Int, Int, TabId ) Int
-checkAndGetNewWeekRangeCache competitionId mbseasonId mbmaxweek tabId dCacheWeekRange =
+checkAndGetNewWeekRangeCache leagueId mbseasonId mbmaxweek tabId dCacheWeekRange =
     case mbseasonId of
         Just seasonId ->
             case mbmaxweek of
                 Just maxweek ->
                     let
                         mweek =
-                            Dict.get ( competitionId, seasonId, tabId ) dCacheWeekRange
+                            Dict.get ( leagueId, seasonId, tabId ) dCacheWeekRange
 
                         newMaxWeek =
                             case mweek of
                                 Nothing ->
-                                    Dict.insert ( competitionId, seasonId, tabId ) maxweek dCacheWeekRange
+                                    Dict.insert ( leagueId, seasonId, tabId ) maxweek dCacheWeekRange
 
                                 _ ->
                                     dCacheWeekRange
@@ -715,7 +715,7 @@ viewCommonControls model =
                     [ span [ class "text-center" ] [ titleView model ]
                     , br [] []
                     , div [ class "container" ]
-                        [ ViewControls.competitionView model
+                        [ ViewControls.leagueView model
                         , ViewControls.seasonsView model
                         , ViewControls.modeView model
                         , ViewControls.weekView model
@@ -771,8 +771,8 @@ initFunc flagsToDec =
                 cmdBatch1 =
                     case ( initialModel.currentTab, mbUrl ) of
                         ( CalendarTab, Just theUrl ) ->
-                            [ getSeasonRange theUrl initialModel.selectedCompetition CalendarTab
-                            , getIfPossibleGames theUrl initialModel.selectedCompetition initialModel.selectedSeasonId (Just initialModel.weekNr)
+                            [ getSeasonRange theUrl initialModel.selectedLeague CalendarTab
+                            , getIfPossibleGames theUrl initialModel.selectedLeague initialModel.selectedSeasonId (Just initialModel.weekNr)
                             ]
 
                         _ ->
@@ -781,8 +781,8 @@ initFunc flagsToDec =
                 cmdBatch2 =
                     case ( initialModel.currentTab, mbUrl ) of
                         ( StandingsTab, Just theUrl ) ->
-                            [ getSeasonRange theUrl initialModel.selectedCompetition StandingsTab
-                            , getIfPossibleRankTable theUrl initialModel.selectedCompetition initialModel.selectedSeasonId initialModel.weekNr
+                            [ getSeasonRange theUrl initialModel.selectedLeague StandingsTab
+                            , getIfPossibleRankTable theUrl initialModel.selectedLeague initialModel.selectedSeasonId initialModel.weekNr
                             ]
 
                         _ ->
