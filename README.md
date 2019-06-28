@@ -1,4 +1,6 @@
-__FootballInfoElmApp__  is an Elm app that displays football info ( fixtures and standings ) with a 'friendly' user interface
+##  FootballInfoElmApp
+
+Elm app that displays football info ( fixtures and standings ) with a 'friendly' user interface
 
 It supports several leagues and seasons and has the ability to cache information.
 
