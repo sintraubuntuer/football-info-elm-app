@@ -633,13 +633,6 @@ checkAndGetNewSeasonRangeCache leagueId lseasons dCacheSeasons =
 
 checkAndGetNewWeekRangeCache : Int -> Maybe Int -> Maybe Int -> TabId -> Dict ( Int, Int, TabId ) Int -> Dict ( Int, Int, TabId ) Int
 checkAndGetNewWeekRangeCache leagueId mbseasonId mbmaxweek tabId dCacheWeekRange =
-    let
-        _ =
-            Debug.log "got a new mbMaxWeek for leagueId and SeasonId " ( mbmaxweek, leagueId, mbseasonId )
-
-        _ =
-            Debug.log "tabId is : " tabId
-    in
     case mbseasonId of
         Just seasonId ->
             case mbmaxweek of
@@ -651,17 +644,9 @@ checkAndGetNewWeekRangeCache leagueId mbseasonId mbmaxweek tabId dCacheWeekRange
                         newMaxWeek =
                             case mweek of
                                 Nothing ->
-                                    let
-                                        _ =
-                                            Debug.log "going to insert maxWeek in cache dictionary : " maxweek
-                                    in
                                     Dict.insert ( leagueId, seasonId, tabId ) maxweek dCacheWeekRange
 
                                 _ ->
-                                    let
-                                        _ =
-                                            Debug.log "cache already has maxWeek "
-                                    in
                                     dCacheWeekRange
                     in
                     newMaxWeek
