@@ -119,8 +119,21 @@ update msg model =
             let
                 newModel =
                     { model | currentTab = tab }
+
+                ( nModel, ncmds ) =
+                    case model.selectedSeasonId of
+                        Nothing ->
+                            ( newModel, Cmd.none )
+
+                        Just sId ->
+                            case Dict.get ( newModel.selectedLeague, sId, tab |> toTabId ) newModel.cacheWeekRange of
+                                Nothing ->
+                                    ( newModel, getWeekRange newModel.apiUrl newModel.selectedLeague sId newModel.currentTab )
+
+                                Just weekval ->
+                                    update (NewWeekRange (Ok (List.range 1 weekval))) newModel
             in
-            update PresentNewInfo newModel
+            ( nModel, ncmds )
 
         NewDisplayLanguage displaylanguage ->
             ( { model | language = displaylanguage }, Cmd.none )
@@ -163,7 +176,7 @@ update msg model =
                                     { model | selectedSeasonId = Just nr }
 
                                 maxWeekFromDict =
-                                    Dict.get ( model.selectedLeague, nr, standingsTab ) nModel.cacheWeekRange
+                                    Dict.get ( nModel.selectedLeague, nr, nModel.currentTab |> toTabId ) nModel.cacheWeekRange
 
                                 ( nModel2, ncmds ) =
                                     case maxWeekFromDict of
@@ -248,7 +261,7 @@ update msg model =
                         Just sId ->
                             let
                                 maxWeekFromDict =
-                                    Dict.get ( newModel1.selectedLeague, sId, standingsTab ) newModel1.cacheWeekRange
+                                    Dict.get ( newModel1.selectedLeague, sId, newModel1.currentTab |> toTabId ) newModel1.cacheWeekRange
 
                                 --_ = Debug.log "debug cacheWeekRange : " ( toString newModel1.cacheWeekRange )
                                 ( nModel, ncmds ) =
@@ -457,6 +470,16 @@ update msg model =
                     )
 
 
+toTabId : CurrentTab -> TabId
+toTabId currTab =
+    case currTab of
+        StandingsTab ->
+            standingsTab
+
+        CalendarTab ->
+            calendarTab
+
+
 errorToString : Http.Error -> String
 errorToString error =
     case error of
@@ -610,6 +633,13 @@ checkAndGetNewSeasonRangeCache leagueId lseasons dCacheSeasons =
 
 checkAndGetNewWeekRangeCache : Int -> Maybe Int -> Maybe Int -> TabId -> Dict ( Int, Int, TabId ) Int -> Dict ( Int, Int, TabId ) Int
 checkAndGetNewWeekRangeCache leagueId mbseasonId mbmaxweek tabId dCacheWeekRange =
+    let
+        _ =
+            Debug.log "got a new mbMaxWeek for leagueId and SeasonId " ( mbmaxweek, leagueId, mbseasonId )
+
+        _ =
+            Debug.log "tabId is : " tabId
+    in
     case mbseasonId of
         Just seasonId ->
             case mbmaxweek of
@@ -621,9 +651,17 @@ checkAndGetNewWeekRangeCache leagueId mbseasonId mbmaxweek tabId dCacheWeekRange
                         newMaxWeek =
                             case mweek of
                                 Nothing ->
+                                    let
+                                        _ =
+                                            Debug.log "going to insert maxWeek in cache dictionary : " maxweek
+                                    in
                                     Dict.insert ( leagueId, seasonId, tabId ) maxweek dCacheWeekRange
 
                                 _ ->
+                                    let
+                                        _ =
+                                            Debug.log "cache already has maxWeek "
+                                    in
                                     dCacheWeekRange
                     in
                     newMaxWeek
@@ -718,7 +756,7 @@ viewCommonControls model =
                         [ ViewControls.leagueView model
                         , ViewControls.seasonsView model
                         , ViewControls.modeView model
-                        , ViewControls.weekView model
+                        , ViewControls.weekView model (getMaxWeek model)
                         , ViewControls.optionGoalsView model
                         , ViewControls.tableSizeOptionsView model
                         , ViewControls.submitView
@@ -728,6 +766,21 @@ viewCommonControls model =
                 ]
             ]
         ]
+
+
+getMaxWeek : Model -> Int
+getMaxWeek model =
+    let
+        tabId =
+            toTabId model.currentTab
+    in
+    case model.selectedSeasonId of
+        Just sid ->
+            Dict.get ( model.selectedLeague, sid, tabId ) model.cacheWeekRange
+                |> Maybe.withDefault 34
+
+        Nothing ->
+            34
 
 
 titleView : Model -> Html Msg

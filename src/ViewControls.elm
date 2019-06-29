@@ -124,18 +124,8 @@ radioOptionGoals model bool name =
     ]
 
 
-weekView : Model -> Html Msg
-weekView model =
-    let
-        maxWeek =
-            case model.selectedSeasonId of
-                Just sid ->
-                    Dict.get ( model.selectedLeague, sid, calendarTab ) model.cacheWeekRange
-                        |> Maybe.withDefault 34
-
-                Nothing ->
-                    34
-    in
+weekView : Model -> Int -> Html Msg
+weekView model maxWeek =
     if model.weekmode == SingleWeek || model.currentTab == StandingsTab then
         div [ class "form-group row" ]
             [ label [ for "weekNrInput", class "col-form-label col-sm-3" ] [ gtxt_ "week nr" model.language ]
