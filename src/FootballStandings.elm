@@ -239,7 +239,7 @@ urlForFilteredStandingsTable apiUrl leagueId seasonId weekId =
 
 urlForSeasonRangeInRankTable : String -> Int -> String
 urlForSeasonRangeInRankTable apiUrl leagueId =
-    baseUrlForStandingsTable apiUrl ++ "getSeasonsForComp/?league=" ++ String.fromInt leagueId ++ "&format=json"
+    baseUrlForStandingsTable apiUrl ++ "getSeasonsForLeague/?league=" ++ String.fromInt leagueId ++ "&format=json"
 
 
 urlForWeekRangeInRankTable : String -> Int -> Int -> String

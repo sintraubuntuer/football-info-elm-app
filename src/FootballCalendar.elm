@@ -201,7 +201,7 @@ baseUrlForMatchTable apiUrl =
 
 urlForSeasonRangeInMatchTable : String -> Int -> String
 urlForSeasonRangeInMatchTable apiUrl leagueId =
-    baseUrlForMatchTable apiUrl ++ "getSeasonsForComp/?league=" ++ String.fromInt leagueId ++ "&format=json"
+    baseUrlForMatchTable apiUrl ++ "getSeasonsForLeague/?league=" ++ String.fromInt leagueId ++ "&format=json"
 
 
 urlForWeekRangeInMatchTable : String -> Int -> Int -> String

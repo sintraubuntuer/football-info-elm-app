@@ -1,4 +1,4 @@
-##  FootballInfoElmApp
+lid##  FootballInfoElmApp
 
 Elm app that displays football info ( fixtures and standings ) with a 'friendly' user interface
 
@@ -20,12 +20,12 @@ The API endpoints that the app queries ( and the json responses it expects ) are
 
 [1]
 ```
-/footapi/footballmatches/?season=<sid:int>&competition=<cid:int>&weekNr=<wnr:int>  
+/footapi/footballmatches/?season=<sid:int>&league=<lid:int>&weekNr=<wnr:int>  
 ```
 
 example :  
 
-/footapi/footballmatches/?season=14&competition=2&weekNr=34
+/footapi/footballmatches/?season=14&league=2&weekNr=34
 
 ```javascript
 {
@@ -47,13 +47,13 @@ example :
                 "shortName": "Belenenses"
             },
             "goalsAwayTeam": 0,
-            "competition": 2,
+            "league": 2,
             "season": 14,
             "weekNr": 34,
             "gameNrWeek": 1,
             "links": {
                 "self": "/footapi/footballmatch/3136/",
-                "competition": "/footapi/competition/2/",
+                "league": "/footapi/league/2/",
                 "season": "/footapi/season/14/"
             }
         },
@@ -71,13 +71,13 @@ example :
                 "shortName": "Marítimo"
             },
             "goalsAwayTeam": 0,
-            "competition": 2,
+            "league": 2,
             "season": 14,
             "weekNr": 34,
             "gameNrWeek": 2,
             "links": {
                 "self": "/footapi/footballmatch/3137/",
-                "competition": "/footapi/competition/2/",
+                "league": "/footapi/league/2/",
                 "season": "/footapi/season/14/"
             }
         },
@@ -95,13 +95,13 @@ example :
                 "shortName": "V. Setubal"
             },
             "goalsAwayTeam": 2,
-            "competition": 2,
+            "league": 2,
             "season": 14,
             "weekNr": 34,
             "gameNrWeek": 3,
             "links": {
                 "self": "/footapi/footballmatch/3138/",
-                "competition": "/footapi/competition/2/",
+                "league": "/footapi/league/2/",
                 "season": "/footapi/season/14/"
             }
         },
@@ -111,11 +111,11 @@ example :
 
 [2]
 ```
-/footapi/seasonstandings/?season=1<sid:int>&competition=<cid:int>&weekNr=<wnr:int>
+/footapi/seasonstandings/?season=1<sid:int>&league=<lid:int>&weekNr=<wnr:int>
 ```
 
 example:  
-/footapi/seasonstandings/?season=14&competition=2&weekNr=34
+/footapi/seasonstandings/?season=14&league=2&weekNr=34
 
 ```javascript
 {
@@ -127,8 +127,8 @@ example:
             "team": 4,
             "teamName": "Benfica",
             "teamShortName": "Benfica",
-            "competition": 2,
-            "competitionName": "Liga Sagres",
+            "league": 2,
+            "leagueName": "Liga Sagres",
             "season": 14,
             "seasonName": "2016-2017",
             "weekNr": 34,
@@ -157,8 +157,8 @@ example:
             "team": 3,
             "teamName": "FC Porto",
             "teamShortName": "FC Porto",
-            "competition": 2,
-            "competitionName": "Liga Sagres",
+            "league": 2,
+            "leagueName": "Liga Sagres",
             "season": 14,
             "seasonName": "2016-2017",
             "weekNr": 34,
@@ -187,8 +187,8 @@ example:
             "team": 2,
             "teamName": "Sporting",
             "teamShortName": "Sporting",
-            "competition": 2,
-            "competitionName": "Liga Sagres",
+            "league": 2,
+            "leagueName": "Liga Sagres",
             "season": 14,
             "seasonName": "2016-2017",
             "weekNr": 34,
@@ -219,11 +219,11 @@ example:
 
 [3]
 ```
-/footapi/getSeasonsForComp/?competition=<cid:int>
+/footapi/getSeasonsForLeague/?league=<lid:int>
 ```
 
 example:  
-/footapi/getSeasonsForComp/?competition=2
+/footapi/getSeasonsForLeague/?league=2
 
 ```javascript
 [
@@ -268,15 +268,15 @@ example:
 
 __[4]__
 ```
-/footapi/getWeekRange/?competition=<cid:int>&season=<sid:int>  
+/footapi/getWeekRange/?league=<lid:int>&season=<sid:int>  
 
   and  
 
-/footapi/getWeekRangeForTblStandings/?competition=<cid:int>&season=<sid:int>
+/footapi/getWeekRangeForTblStandings/?league=<lid:int>&season=<sid:int>
 ```
 
 example:  
-/footapi/getWeekRange/?competition=2&season=14
+/footapi/getWeekRange/?league=2&season=14
 
 ```javascript
 [
