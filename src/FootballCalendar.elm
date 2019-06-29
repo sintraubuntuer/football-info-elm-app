@@ -167,7 +167,7 @@ gameDecoder =
         |> Json.Decode.Pipeline.required "weekNr" Json.Decode.int
         |> Json.Decode.Pipeline.optional "gameNrWeek" (Json.Decode.maybe Json.Decode.int) Nothing
         |> Json.Decode.Pipeline.required "season" Json.Decode.int
-        |> Json.Decode.Pipeline.required "competition" Json.Decode.int
+        |> Json.Decode.Pipeline.required "league" Json.Decode.int
 
 
 payloadGameDecoder : Json.Decode.Decoder (List Game)
@@ -188,10 +188,10 @@ urlForFilteredMatches : String -> Int -> Int -> Maybe Int -> String
 urlForFilteredMatches apiUrl leagueId seasonId mbweekId =
     case mbweekId of
         Nothing ->
-            urlForMatches apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&competition=" ++ String.fromInt leagueId ++ "&ordering=weekNr" ++ "&format=json"
+            urlForMatches apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&league=" ++ String.fromInt leagueId ++ "&ordering=weekNr" ++ "&format=json"
 
         Just nr ->
-            urlForMatches apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&competition=" ++ String.fromInt leagueId ++ "&weekNr=" ++ String.fromInt nr ++ "&ordering=gameNrWeek" ++ "&format=json"
+            urlForMatches apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&league=" ++ String.fromInt leagueId ++ "&weekNr=" ++ String.fromInt nr ++ "&ordering=gameNrWeek" ++ "&format=json"
 
 
 baseUrlForMatchTable : String -> String
@@ -201,12 +201,12 @@ baseUrlForMatchTable apiUrl =
 
 urlForSeasonRangeInMatchTable : String -> Int -> String
 urlForSeasonRangeInMatchTable apiUrl leagueId =
-    baseUrlForMatchTable apiUrl ++ "getSeasonsForComp/?competition=" ++ String.fromInt leagueId ++ "&format=json"
+    baseUrlForMatchTable apiUrl ++ "getSeasonsForComp/?league=" ++ String.fromInt leagueId ++ "&format=json"
 
 
 urlForWeekRangeInMatchTable : String -> Int -> Int -> String
 urlForWeekRangeInMatchTable apiUrl leagueId seasonId =
-    baseUrlForMatchTable apiUrl ++ "getWeekRange/" ++ "?competition=" ++ String.fromInt leagueId ++ "&season=" ++ String.fromInt seasonId ++ "&format=json"
+    baseUrlForMatchTable apiUrl ++ "getWeekRange/" ++ "?league=" ++ String.fromInt leagueId ++ "&season=" ++ String.fromInt seasonId ++ "&format=json"
 
 
 

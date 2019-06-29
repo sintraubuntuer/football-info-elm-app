@@ -186,8 +186,8 @@ rankTableEntryDecoder =
         |> Json.Decode.Pipeline.required "team" Json.Decode.int
         |> Json.Decode.Pipeline.required "teamName" Json.Decode.string
         |> Json.Decode.Pipeline.required "teamShortName" Json.Decode.string
-        |> Json.Decode.Pipeline.required "competition" Json.Decode.int
-        |> Json.Decode.Pipeline.required "competitionName" Json.Decode.string
+        |> Json.Decode.Pipeline.required "league" Json.Decode.int
+        |> Json.Decode.Pipeline.required "leagueName" Json.Decode.string
         |> Json.Decode.Pipeline.required "season" Json.Decode.int
         |> Json.Decode.Pipeline.required "seasonName" Json.Decode.string
         |> Json.Decode.Pipeline.required "weekNr" Json.Decode.int
@@ -234,17 +234,17 @@ urlForStandingsTable apiUrl =
 
 urlForFilteredStandingsTable : String -> Int -> Int -> Int -> String
 urlForFilteredStandingsTable apiUrl leagueId seasonId weekId =
-    urlForStandingsTable apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&competition=" ++ String.fromInt leagueId ++ "&weekNr=" ++ String.fromInt weekId ++ "&ordering=weekRank&format=json"
+    urlForStandingsTable apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&league=" ++ String.fromInt leagueId ++ "&weekNr=" ++ String.fromInt weekId ++ "&ordering=weekRank&format=json"
 
 
 urlForSeasonRangeInRankTable : String -> Int -> String
 urlForSeasonRangeInRankTable apiUrl leagueId =
-    baseUrlForStandingsTable apiUrl ++ "getSeasonsForComp/?competition=" ++ String.fromInt leagueId ++ "&format=json"
+    baseUrlForStandingsTable apiUrl ++ "getSeasonsForComp/?league=" ++ String.fromInt leagueId ++ "&format=json"
 
 
 urlForWeekRangeInRankTable : String -> Int -> Int -> String
 urlForWeekRangeInRankTable apiUrl leagueId seasonId =
-    baseUrlForStandingsTable apiUrl ++ "getWeekRangeForTblStandings/?competition=" ++ String.fromInt leagueId ++ "&season=" ++ String.fromInt seasonId ++ "&format=json"
+    baseUrlForStandingsTable apiUrl ++ "getWeekRangeForTblStandings/?league=" ++ String.fromInt leagueId ++ "&season=" ++ String.fromInt seasonId ++ "&format=json"
 
 
 
