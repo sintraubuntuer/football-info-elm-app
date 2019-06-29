@@ -1,4 +1,4 @@
-##  FootballInfoElmApp
+##  Football-Info-Elm-App
 
 Elm app that displays football info ( fixtures and standings ) with a 'friendly' user interface
 
