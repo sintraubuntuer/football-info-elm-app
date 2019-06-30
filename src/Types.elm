@@ -183,7 +183,7 @@ type alias Model =
     , selectedSeasonId : Maybe Int
     , weekmode : WeekMode
     , weekNr : Int
-    , cacheWeekRange : Dict.Dict ( LeagueId, SeasonId, TabId ) Int
+    , cacheWeekRange : Dict.Dict ( LeagueId, SeasonId, TabId ) ( Int, Int )
     , games : List Game
     , showGameResults : Bool
     , rankTable : List RankTableEntry
