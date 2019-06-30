@@ -119,21 +119,8 @@ update msg model =
             let
                 newModel =
                     { model | currentTab = tab }
-
-                ( nModel, ncmds ) =
-                    case model.selectedSeasonId of
-                        Nothing ->
-                            ( newModel, Cmd.none )
-
-                        Just sId ->
-                            case Dict.get ( newModel.selectedLeague, sId, tab |> toTabId ) newModel.cacheWeekRange of
-                                Nothing ->
-                                    ( newModel, getWeekRange newModel.apiUrl newModel.selectedLeague sId newModel.currentTab )
-
-                                Just weekval ->
-                                    update (NewWeekRange (Ok (List.range 1 weekval))) newModel
             in
-            ( nModel, ncmds )
+            update GetWeekRangeIfNotInCache newModel
 
         NewDisplayLanguage displaylanguage ->
             ( { model | language = displaylanguage }, Cmd.none )
@@ -146,52 +133,38 @@ update msg model =
                         |> Result.fromMaybe "couldn't convert to Int"
                         |> Result.withDefault getDefaultLeagueId
 
-                newModel1 =
+                newModel =
                     { model | selectedLeague = newLeague }
+            in
+            update GetSeasonRangeIfNotInCache newModel
 
+        GetSeasonRangeIfNotInCache ->
+            let
                 thelSeasons =
-                    Dict.get newLeague model.cacheSeasonRanges
+                    Dict.get model.selectedLeague model.cacheSeasonRanges
 
-                ( newModel2, cmds ) =
+                ( newModel, cmds ) =
                     case thelSeasons of
                         -- only gets season range from server if not present in model cache
                         Nothing ->
-                            ( newModel1, getSeasonRange newModel1.apiUrl newLeague newModel1.currentTab )
+                            ( model, getSeasonRange model.apiUrl model.selectedLeague model.currentTab )
 
                         Just lseasons ->
-                            update (NewSeasonRange (Ok lseasons)) newModel1
+                            update (NewSeasonRange (Ok lseasons)) model
             in
-            ( newModel2, cmds )
+            ( newModel, cmds )
 
         ChangeSeason val ->
             let
                 mbNewSeason =
                     String.toInt val
-
-                ( newModel, theCmds ) =
-                    case mbNewSeason of
-                        Just nr ->
-                            let
-                                nModel =
-                                    { model | selectedSeasonId = Just nr }
-
-                                maxWeekFromDict =
-                                    Dict.get ( nModel.selectedLeague, nr, nModel.currentTab |> toTabId ) nModel.cacheWeekRange
-
-                                ( nModel2, ncmds ) =
-                                    case maxWeekFromDict of
-                                        Nothing ->
-                                            ( nModel, getWeekRange nModel.apiUrl nModel.selectedLeague nr nModel.currentTab )
-
-                                        Just weekval ->
-                                            update (NewWeekRange (Ok (List.range 1 weekval))) nModel
-                            in
-                            ( nModel2, ncmds )
-
-                        Nothing ->
-                            ( model, Cmd.none )
             in
-            ( newModel, theCmds )
+            case mbNewSeason of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just nr ->
+                    update GetWeekRangeIfNotInCache { model | selectedSeasonId = Just nr }
 
         ChangeWeekMode ->
             let
@@ -252,29 +225,8 @@ update msg model =
                         , cacheSeasonRanges = newCacheSRange
                         , selectedSeasonId = selectedSeason
                     }
-
-                ( newModel2, cmds ) =
-                    case selectedSeason of
-                        Nothing ->
-                            ( newModel1, Cmd.none )
-
-                        Just sId ->
-                            let
-                                maxWeekFromDict =
-                                    Dict.get ( newModel1.selectedLeague, sId, newModel1.currentTab |> toTabId ) newModel1.cacheWeekRange
-
-                                --_ = Debug.log "debug cacheWeekRange : " ( toString newModel1.cacheWeekRange )
-                                ( nModel, ncmds ) =
-                                    case maxWeekFromDict of
-                                        Nothing ->
-                                            ( newModel1, getWeekRange newModel1.apiUrl newModel1.selectedLeague sId newModel1.currentTab )
-
-                                        Just weekval ->
-                                            update (NewWeekRange (Ok (List.range 1 weekval))) newModel1
-                            in
-                            ( nModel, ncmds )
             in
-            ( newModel2, cmds )
+            update GetWeekRangeIfNotInCache newModel1
 
         NewSeasonRange (Err error) ->
             let
@@ -289,6 +241,23 @@ update msg model =
               }
             , Cmd.none
             )
+
+        GetWeekRangeIfNotInCache ->
+            case model.selectedSeasonId of
+                Nothing ->
+                    ( model, Cmd.none )
+
+                Just sId ->
+                    let
+                        mbWeekVal =
+                            Dict.get ( model.selectedLeague, sId, model.currentTab |> toTabId ) model.cacheWeekRange
+                    in
+                    case mbWeekVal of
+                        Nothing ->
+                            ( model, getWeekRange model.apiUrl model.selectedLeague sId model.currentTab )
+
+                        Just weekval ->
+                            update (NewWeekRange (Ok (List.range 1 weekval))) model
 
         NewWeekRange (Ok lweeks) ->
             let

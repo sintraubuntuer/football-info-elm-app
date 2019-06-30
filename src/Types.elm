@@ -159,6 +159,8 @@ type Msg
     | ChangeWeekNr String
     | ChangeOptionGoals
     | ChangeTableSize
+    | GetWeekRangeIfNotInCache
+    | GetSeasonRangeIfNotInCache
     | NewSeasonRange (Result.Result Http.Error (List Season))
     | NewWeekRange (Result.Result Http.Error (List Int))
     | NewGames (Result.Result Http.Error (List Game))
