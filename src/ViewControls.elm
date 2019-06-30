@@ -124,8 +124,8 @@ radioOptionGoals model bool name =
     ]
 
 
-weekView : Model -> Int -> Html Msg
-weekView model maxWeek =
+weekView : Model -> ( Int, Int ) -> Html Msg
+weekView model ( minWeek, maxWeek ) =
     if model.weekmode == SingleWeek || model.currentTab == StandingsTab then
         div [ class "form-group row" ]
             [ label [ for "weekNrInput", class "col-form-label col-sm-3" ] [ gtxt_ "week nr" model.language ]
@@ -133,7 +133,7 @@ weekView model maxWeek =
                 [ input
                     [ class "form-control"
                     , type_ "number"
-                    , Attr.min "1"
+                    , Attr.min (String.fromInt minWeek)
                     , Attr.max (String.fromInt maxWeek)
                     , value (String.fromInt model.weekNr)
                     , onInput ChangeWeekNr

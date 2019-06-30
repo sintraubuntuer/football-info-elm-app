@@ -703,7 +703,7 @@ viewCommonControls model =
                         [ ViewControls.leagueView model
                         , ViewControls.seasonsView model
                         , ViewControls.modeView model
-                        , ViewControls.weekView model (getMaxWeek model)
+                        , ViewControls.weekView model (getMinWeekMaxWeekTuple model)
                         , ViewControls.optionGoalsView model
                         , ViewControls.tableSizeOptionsView model
                         , ViewControls.submitView
@@ -715,8 +715,8 @@ viewCommonControls model =
         ]
 
 
-getMaxWeek : Model -> Int
-getMaxWeek model =
+getMinWeekMaxWeekTuple : Model -> ( Int, Int )
+getMinWeekMaxWeekTuple model =
     let
         tabId =
             toTabId model.currentTab
@@ -724,12 +724,12 @@ getMaxWeek model =
     case model.selectedSeasonId of
         Just sid ->
             Dict.get ( model.selectedLeague, sid, tabId ) model.cacheWeekRange
-                |> Maybe.withDefault [ 34 ]
-                |> List.maximum
-                |> Maybe.withDefault 34
+                |> Maybe.withDefault (List.range 1 34)
+                |> (\l -> ( List.minimum l, List.maximum l ))
+                |> (\( a, b ) -> ( a |> Maybe.withDefault 1, b |> Maybe.withDefault 34 ))
 
         Nothing ->
-            34
+            ( 1, 34 )
 
 
 titleView : Model -> Html Msg
