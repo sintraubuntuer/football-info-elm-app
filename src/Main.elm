@@ -140,11 +140,11 @@ update msg model =
 
         GetSeasonRangeIfNotInCache ->
             let
-                thelSeasons =
+                theCachedSeasons =
                     Dict.get model.selectedLeague model.cacheSeasonRanges
 
                 ( newModel, cmds ) =
-                    case thelSeasons of
+                    case theCachedSeasons of
                         -- only gets season range from server if not present in model cache
                         Nothing ->
                             ( model, getSeasonRange model.apiUrl model.selectedLeague model.currentTab )
@@ -216,13 +216,13 @@ update msg model =
                         Nothing ->
                             getSeasonIdFromSeasonRangeHead lseason
 
-                newCacheSRange =
+                newCacheSeasonRange =
                     checkAndGetNewSeasonRangeCache model.selectedLeague lseason model.cacheSeasonRanges
 
                 newModel1 =
                     { model
                         | seasonRange = lseason
-                        , cacheSeasonRanges = newCacheSRange
+                        , cacheSeasonRanges = newCacheSeasonRange
                         , selectedSeasonId = selectedSeason
                     }
             in
