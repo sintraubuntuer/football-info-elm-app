@@ -252,23 +252,20 @@ update msg model =
                         dictKey =
                             ( model.selectedLeague, sId, model.currentTab |> toTabId )
 
-                        mbCachedWeekTuple =
+                        mbCachedWeekRange =
                             Dict.get dictKey model.cacheWeekRange
                     in
-                    case mbCachedWeekTuple of
+                    case mbCachedWeekRange of
                         Nothing ->
                             ( model, getWeekRange model.apiUrl model.selectedLeague sId model.currentTab )
 
-                        Just ( minWeek, maxWeek ) ->
-                            update (NewWeekRange (Ok (List.range minWeek maxWeek))) model
+                        Just lWeeks ->
+                            update (NewWeekRange (Ok lWeeks)) model
 
         NewWeekRange (Ok lweeks) ->
             let
                 mbMaxWeek =
                     List.maximum lweeks
-
-                mbMinWeek =
-                    List.minimum lweeks
 
                 selectedWeek =
                     case mbMaxWeek of
@@ -283,17 +280,7 @@ update msg model =
                                 mw
 
                 newCacheWeekRange =
-                    case ( mbMinWeek, mbMaxWeek ) of
-                        ( Just minWeek, Just maxWeek ) ->
-                            case model.currentTab of
-                                CalendarTab ->
-                                    checkAndGetNewWeekRangeCache model.selectedLeague model.selectedSeasonId minWeek maxWeek calendarTab model.cacheWeekRange
-
-                                StandingsTab ->
-                                    checkAndGetNewWeekRangeCache model.selectedLeague model.selectedSeasonId minWeek maxWeek standingsTab model.cacheWeekRange
-
-                        _ ->
-                            model.cacheWeekRange
+                    checkAndGetNewWeekRangeCache model.selectedLeague model.selectedSeasonId lweeks (model.currentTab |> toTabId) model.cacheWeekRange
 
                 newModel =
                     { model
@@ -611,18 +598,18 @@ checkAndGetNewSeasonRangeCache leagueId lseasons dCacheSeasons =
     newCacheSeasonRange
 
 
-checkAndGetNewWeekRangeCache : Int -> Maybe Int -> Int -> Int -> TabId -> Dict ( Int, Int, TabId ) ( Int, Int ) -> Dict ( Int, Int, TabId ) ( Int, Int )
-checkAndGetNewWeekRangeCache leagueId mbseasonId minweek maxweek tabId dCacheWeekRange =
+checkAndGetNewWeekRangeCache : Int -> Maybe Int -> List Int -> TabId -> Dict ( Int, Int, TabId ) (List Int) -> Dict ( Int, Int, TabId ) (List Int)
+checkAndGetNewWeekRangeCache leagueId mbseasonId lweeks tabId dCacheWeekRange =
     case mbseasonId of
         Just seasonId ->
             let
-                currWeekTuple =
+                currWeekList =
                     Dict.get ( leagueId, seasonId, tabId ) dCacheWeekRange
 
                 newCacheDict =
-                    case currWeekTuple of
+                    case currWeekList of
                         Nothing ->
-                            Dict.insert ( leagueId, seasonId, tabId ) ( minweek, maxweek ) dCacheWeekRange
+                            Dict.insert ( leagueId, seasonId, tabId ) lweeks dCacheWeekRange
 
                         _ ->
                             dCacheWeekRange
@@ -737,8 +724,9 @@ getMaxWeek model =
     case model.selectedSeasonId of
         Just sid ->
             Dict.get ( model.selectedLeague, sid, tabId ) model.cacheWeekRange
-                |> Maybe.withDefault ( 1, 34 )
-                |> Tuple.second
+                |> Maybe.withDefault [ 34 ]
+                |> List.maximum
+                |> Maybe.withDefault 34
 
         Nothing ->
             34
