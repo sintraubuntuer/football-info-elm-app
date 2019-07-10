@@ -16,7 +16,7 @@ __language__ : "en" for english or "pt" for portuguese
 
 #### Endpoints :
 
-The API endpoints that the app queries ( and the json responses it expects ) are as following :
+The API endpoints that the app queries ( and the json responses it expects ) are as follows :
 
 [1]
 ```
