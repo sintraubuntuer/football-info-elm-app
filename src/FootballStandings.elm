@@ -229,12 +229,15 @@ baseUrlForStandingsTable apiUrl =
 
 urlForStandingsTable : String -> String
 urlForStandingsTable apiUrl =
-    baseUrlForStandingsTable apiUrl ++ "seasonstandings/"
+    --baseUrlForStandingsTable apiUrl ++ "seasonstandings/"
+    baseUrlForStandingsTable apiUrl ++ "weekstandings/"
 
 
 urlForFilteredStandingsTable : String -> Int -> Int -> Int -> String
 urlForFilteredStandingsTable apiUrl leagueId seasonId weekId =
-    urlForStandingsTable apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&league=" ++ String.fromInt leagueId ++ "&weekNr=" ++ String.fromInt weekId ++ "&ordering=weekRank&format=json"
+    --urlForStandingsTable apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&league=" ++ String.fromInt leagueId ++ "&weekNr=" ++ String.fromInt weekId ++ "&ordering=weekRank&format=json"
+    --urlForStandingsTable apiUrl ++ String.fromInt seasonId ++ "/" ++ String.fromInt leagueId ++ "/" ++ String.fromInt weekId ++ "/?ordering=weekRank&format=json"
+    urlForStandingsTable apiUrl ++ "season/" ++ String.fromInt seasonId ++ "/league/" ++ String.fromInt leagueId ++ "/weekNr/" ++ String.fromInt weekId ++ "/?ordering=weekRank&format=json"
 
 
 urlForSeasonRangeInRankTable : String -> Int -> String

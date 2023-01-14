@@ -181,17 +181,20 @@ payloadGameDecoder =
 
 urlForMatches : String -> String
 urlForMatches apiUrl =
-    apiUrl ++ "footballmatches/"
+    --apiUrl ++ "footballmatches/"
+    apiUrl ++ "weekfootballmatches/"
 
 
 urlForFilteredMatches : String -> Int -> Int -> Maybe Int -> String
 urlForFilteredMatches apiUrl leagueId seasonId mbweekId =
     case mbweekId of
         Nothing ->
-            urlForMatches apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&league=" ++ String.fromInt leagueId ++ "&ordering=weekNr" ++ "&format=json"
+            --urlForMatches apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&league=" ++ String.fromInt leagueId ++ "&ordering=weekNr" ++ "&format=json"
+            urlForMatches apiUrl ++ "season/" ++ String.fromInt seasonId ++ "/league/" ++ String.fromInt leagueId ++ "/allWeeks/?ordering=weekNr" ++ "&format=json"
 
         Just nr ->
-            urlForMatches apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&league=" ++ String.fromInt leagueId ++ "&weekNr=" ++ String.fromInt nr ++ "&ordering=gameNrWeek" ++ "&format=json"
+            --urlForMatches apiUrl ++ "?season=" ++ String.fromInt seasonId ++ "&league=" ++ String.fromInt leagueId ++ "&weekNr=" ++ String.fromInt nr ++ "&ordering=gameNrWeek" ++ "&format=json"
+            urlForMatches apiUrl ++ "season/" ++ String.fromInt seasonId ++ "/league/" ++ String.fromInt leagueId ++ "/weekNr/" ++ String.fromInt nr ++ "/?ordering=gameNrWeek" ++ "&format=json"
 
 
 baseUrlForMatchTable : String -> String
