@@ -25,7 +25,7 @@ The API endpoints that the app queries ( and the json responses it expects ) are
 
 example :  
 
-/footapi/weekfootballmatches/season/14/league/2/weekNr/34/
+/footapi/weekfootballmatches/season/14/league/2/weekNr/34/?format=json
 
 ```javascript
 {
@@ -111,11 +111,11 @@ example :
 
 [2]
 ```
-/footapi/seasonstandings/?season=<sid:int>&league=<lid:int>&weekNr=<wnr:int>
+/footapi/weekstandings/season/<sid:int>/league/<lid:int>/weekNr/<wnr:int>
 ```
 
 example:  
-/footapi/seasonstandings/?season=14&league=2&weekNr=34
+/footapi/weekstandings/season/10/league/2/weekNr/20/
 
 ```javascript
 {
