@@ -4,13 +4,13 @@ Elm app that displays football info ( fixtures and standings ) with a 'friendly'
 
 It supports several leagues and seasons and has the ability to cache information.
 
-It was designed/configured to work in conjunction with our Football Info Django Rest API but it can easily be adapted to other known football data APIs .
+It was designed/configured to work in conjunction with our Football Info Django Rest API ( not online at the moment ) but it can easily be adapted to other known football data APIs .
 ( please let me know if you need help with that )
 
 #### Flags :
 
-You need to set two flags (in index.html) to start the app  
-__apiUrl__ :   for instance  "https://footballapintapp.herokuapp.com/footapi/" ,  and  
+You need to set two flags (in index.html) to start the app
+__apiUrl__ :   the Url of the API  
 __language__ : "en" for english or "pt" for portuguese
 
 
@@ -303,4 +303,4 @@ example:
 ```    
 
 You can try a demo app at :  
-https://footballapintapp.herokuapp.com/demoapp/
+https://footballelmdemosite.onrender.com
