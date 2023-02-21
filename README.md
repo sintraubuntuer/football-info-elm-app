@@ -9,7 +9,7 @@ It was designed/configured to work in conjunction with our Football Info Django 
 
 #### Flags :
 
-You need to set two flags (in index.html) to start the app
+You need to set two flags (in index.html) to start the app  
 __apiUrl__ :   the Url of the API  
 __language__ : "en" for english or "pt" for portuguese
 
